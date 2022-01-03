@@ -57,3 +57,25 @@ func main() {
     log.Fatal(err)
 }
 
+// setting cache-control
+/* This would overwrite every existing header
+w.Header().Set("Cache-Control", "public, max-age=31536000")
+*/
+
+/* By contrast this appends to an existing cache and can be called multiple times
+w.Header().Add("Cache-Control", "public")
+w.Header().Add("Cache-Control", "max-age=331536000")
+*/
+
+/* This command deletes all values in the "Cache-Control" header
+w.Header().Del("Cache-Control")
+
+This command retrieves the first value for the "Cache-Control" header
+w.Header().Get("Cache-Control")
+*/
+
+// The manual process for sending JSON responses
+/*
+w.Header().Set("Content-Type", "application/json")
+w.Write([]byte(`{"name": "spianoDev"}`))
+*/
