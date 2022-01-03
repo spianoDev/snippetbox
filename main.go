@@ -1,8 +1,10 @@
 package main
 
 import (
+    "fmt"
     "log"
     "net/http"
+    "strconv"
 )
 
 // Below is a home handler function which writes a byte slice containing "Hello from SpianoDev's Snippetbox" as the response body
@@ -17,7 +19,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // Below is a showSnippet handler function to display a specific showSnippet
 func showSnippet(w http.ResponseWriter, r *http.Request) {
+    // Get value of id parameter, convert to int, unless values is <1, then return 404
+    id, err := strconv.Atoi(r.URL.Query().Get("id"))
+    if err != nil || id < 1 {
+        http.NotFound(w, r)
+        return
+    }
+    /* Replace original message with formatted function that interpolates the id value
     w.Write([]byte("Here is that snippet you asked for..."))
+    */
+    fmt.Fprintf(w, "Serving Snippet ID %d", id)
 }
 
 // Below is a createSnippet handler function that will make a new snippet
