@@ -24,9 +24,15 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 func createSnippet(w http.ResponseWriter, r *http.Request) {
     // if statement to return 405 if the method is not POST
     if r.Method != http.MethodPost {
-        // must call w.WriteHeader before w.Write to send anything other than 200. This can only be used once per response
-        w.WriteHeader(405)
-        w.Write([]byte("Method NOT Allowed. Use POST."))
+        // use allow header method with header name and header value as parameters
+        w.Header().Set("Allow", http.MethodPost)
+/*
+//         // must call w.WriteHeader before w.Write to send anything other than 200. This can only be used once per response
+//         w.WriteHeader(405)
+//         w.Write([]byte("Method NOT Allowed."))
+//        // This entire block can be replaced with an error method
+*/
+        http.Error(w, "Method NOT Allowed", 405)
         return
     }
     w.Write([]byte("Creating a new snippet right away!"))
