@@ -7,6 +7,11 @@ import (
 
 // Below is a home handler function which writes a byte slice containing "Hello from SpianoDev's Snippetbox" as the response body
 func home(w http.ResponseWriter, r *http.Request) {
+    // if statement to return 404 if the path doesn't match "/"
+    if r.URL.Path != "/" {
+        http.NotFound(w, r)
+        return
+    }
     w.Write([]byte("Hello from SpianoDev's Snippetbox"))
 }
 
@@ -24,6 +29,9 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 // First initializes a new servemux and registers the home function as "/" in the URL pattern
 // Second starts a new web server by passing in the TCP network address and the new servemux
 // Third log and throw an error and exit
+
+    // can also use the DefaultServeMux global variable for identical results without declaring mux: http.HandleFunc("/", home)
+    // [This is NOT recommended for prod apps because of the global variable that allows any package to access it]
 
 func main() {
     mux := http.NewServeMux()
