@@ -2,6 +2,8 @@ package main
 
 import(
     "fmt"
+    "html/template"
+    "log"
     "net/http"
     "strconv"
 )
@@ -11,8 +13,19 @@ func home(w http.ResponseWriter, r *http.Request) {
         http.NotFound(w, r)
         return
     }
-
-    w.Write([]byte("Hello from SpianoDev's Snippetbox"))
+    // adding the html template with error handling
+    tx, err := template.ParseFiles("./ui/html/home.page.tmpl")
+    if err != nil {
+        log.Println(err.Error())
+        http.Error(w, "Internal Server Error", 500)
+        return
+    }
+    // Write the template content
+    err = tx.Execute(w, nil)
+    if err != nil {
+        log.Println(err.Error())
+        http.Error(w, "Internal Server Error", 500)
+    }
 }
 
 func showSnippet(w http.ResponseWriter, r *http.Request) {
