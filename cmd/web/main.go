@@ -7,9 +7,9 @@ import (
 
 func main() {
     mux := http.NewServeMux()
-    mux.HandleFunc("/", home)
-    mux.HandleFunc("/snippet", showSnippet)
-    mux.HandleFunc("/snippet/create", createSnippet)
+    mux.Handle("/", http.HandleFunc(home))
+    mux.Handle("/snippet", http.HandleFunc(showSnippet))
+    mux.Handle("/snippet/create", http.HandleFunc(createSnippet))
 
     // Serve the static files with relative path
     fileServer := http.FileServer(http.Dir("./ui/static/"))
