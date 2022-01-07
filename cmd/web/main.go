@@ -7,6 +7,12 @@ import (
     "os"
 )
 
+// Creating app struct for all app-wide dependencies
+type application struct {
+    errorLog *log.Logger
+    infoLog *log.Logger
+}
+
 func main() {
     // Adding a command line flag
     addr := flag.String("addr", ":4000", "HTTP network address")
@@ -18,10 +24,16 @@ func main() {
     // adding Lshortfile to the flags will include relevant file name and line number. can also use Llongfile
     errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+    // New instance of application with the dependencies
+    app := &application{
+        errorLog: errorLog,
+        infoLog: infoLog,
+    }
+
     mux := http.NewServeMux()
-    mux.HandleFunc("/", home)
-    mux.HandleFunc("/snippet", showSnippet)
-    mux.HandleFunc("/snippet/create", createSnippet)
+    mux.HandleFunc("/", app.home)
+    mux.HandleFunc("/snippet", app.showSnippet)
+    mux.HandleFunc("/snippet/create", app.createSnippet)
 
     // Serve the static files with relative path
     fileServer := http.FileServer(http.Dir("./ui/static/"))
