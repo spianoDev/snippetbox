@@ -28,8 +28,14 @@ func main() {
     // register the file server but strip /static prefix before the request
     mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
+    srv := &http.Server{
+        Addr: *addr,
+        ErrorLog: errorLog,
+        Handler: mux,
+    }
+
     infoLog.Println("Serving up GO on %s", *addr)
-    err := http.ListenAndServe(*addr, mux)
+    err := srv.ListenAndServe()
     errorLog.Fatal(err)
 }
 
