@@ -4,6 +4,7 @@ import (
     "flag"
     "log"
     "net/http"
+    "os"
 )
 
 func main() {
@@ -12,6 +13,10 @@ func main() {
     // Function below parses the command line flag, reads it and assigns the addr variable
     // The returned value is a pointer to the flag value so it needs to be prefixed with '*'
     flag.Parse()
+
+    infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+    // adding Lshortfile to the flags will include relevant file name and line number. can also use Llongfile
+    errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
     mux := http.NewServeMux()
     mux.HandleFunc("/", home)
@@ -23,9 +28,9 @@ func main() {
     // register the file server but strip /static prefix before the request
     mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-    log.Println("Serving up GO on %s", *addr)
+    infoLog.Println("Serving up GO on %s", *addr)
     err := http.ListenAndServe(*addr, mux)
-    log.Fatal(err)
+    errorLog.Fatal(err)
 }
 
 // You can store the config settings in env variables by using the below function
