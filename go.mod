@@ -1,3 +1,3 @@
-module github.com/spianoDev/snippetbox
+module github.com/spianodev/snippetbox
 
 go 1.17
