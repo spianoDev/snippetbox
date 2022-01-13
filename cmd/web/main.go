@@ -34,7 +34,7 @@ func main() {
     // Adding a command line flag
     addr := flag.String("addr", ":4000", "HTTP network address")
     // Adding flag for mysql dsn
-    dsn := flag.String("dsn", "web:" + sqlPass + "@/snippetbox?parseTime=true", "MySQL data source name")
+    dsn := flag.String("dsn", fmt.Sprintf("web:%s@/snippetbox?parseTime=true", sqlPass), "MySQL data source name")
     // Function below parses the command line flag, reads it and assigns the addr variable
     // The returned value is a pointer to the flag value so it needs to be prefixed with '*'
     flag.Parse()
