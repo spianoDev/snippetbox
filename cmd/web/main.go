@@ -2,6 +2,7 @@ package main
 
 import (
     "database/sql"
+    "fmt"
     "flag"
     "log"
     "net/http"
@@ -16,25 +17,28 @@ type application struct {
     errorLog *log.Logger
     infoLog *log.Logger
 }
-// function to load/read environment file
-func goDotEnvVariable(key string) string {
-    err := godotenv.Load(".env")
-    if err != nil {
-        errorLog.Println("Error loading the .env file...")
-    }
 
-    return os.Getenv(key)
+// function to load/read environment file
+
+func init() {
+  if err := godotenv.Load(); err != nil {
+    log.Print("No .env file found...")
+  }
 }
 
 func main() {
     // retrieve password from .env for sql connection
-    sqlPass := gotDotEnvVariable("SQL_PASS")
-    infoLog.Println(sqlPass)
+    sqlPass, exists := os.LookupEnv("SQL_PASS")
+    if exists {
+      fmt.Println(sqlPass)
+    }
+
+    webParse := "web:" + sqlPass + "@/snippetbox?parseTime=true"
 
     // Adding a command line flag
     addr := flag.String("addr", ":4000", "HTTP network address")
     // Adding flag for mysql dsn
-    dsn := flag.String("dsn", fmt.Sprintf("web:%s@/snippetbox?parseTime=true", sqlPass), "MySQL data source name")
+    dsn := flag.String("dsn", webParse, "MySQL data source name")
     // Function below parses the command line flag, reads it and assigns the addr variable
     // The returned value is a pointer to the flag value so it needs to be prefixed with '*'
     flag.Parse()
