@@ -44,12 +44,13 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
         }
         return
     }
-    // re-initialize the html paths from before
+    // create instance of the templateData struct that has the snippet data
+    data := &templateData{Snippet: s}
+
     files := []string{
-        "./ui/html/home.page.tmpl",
+        "./ui/html/show.page.tmpl",
         "./ui/html/base.layout.tmpl",
         "./ui/html/footer.partial.tmpl",
-        "./ui/html/show.page.tmpl",
     }
     // parse the template files
     ts, err := template.ParseFiles(files...)
@@ -58,7 +59,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    err = ts.Execute(w, s)
+    err = ts.Execute(w, data)
     if err != nil {
         app.serverError(w, err)
     }
