@@ -2,6 +2,7 @@ package mysql
 
 import (
   "database/sql"
+  "errors"
   "github.com/spianodev/snippetbox/pkg/models"
 )
 
@@ -30,7 +31,24 @@ func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 
 // Function to retrieve a specific snippet by id
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
-  return nil, nil
+  statement := `SELECT id, title, content, created, expires FROM snippets
+  WHERE expires > UTC_TIMESTAMP() AND id = ?`
+
+  // Get a pointer to the row that matches the above statement
+  row := m.DB.QueryRow(statement, id)
+  // New variable for entering the values for finding the desired row
+  s := &models.Snippet{}
+  // look for the values in each row leveraging the 's' variable
+  err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+  if err != nil {
+    if errors.Is(err, sql.ErrNoRows) {
+      return nil, models.ErrNoRecord
+    } else {
+      return nil, err
+    }
+  }
+
+  return s, nil
 }
 
 // // Function to retrieve the latest 10 snippets
