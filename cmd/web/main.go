@@ -9,7 +9,7 @@ import (
     "os"
 
     "github.com/joho/godotenv"
-    "github.com/spianodev/snippetbox/pkg/models"
+    "github.com/spianodev/snippetbox/pkg/models/mysql"
 // The underscore creates an alias for the package name to a blank identifier so the driver init() function can run
     _ "github.com/go-sql-driver/mysql"
 )
