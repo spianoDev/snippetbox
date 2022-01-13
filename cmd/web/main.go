@@ -7,7 +7,9 @@ import (
     "log"
     "net/http"
     "os"
+
     "github.com/joho/godotenv"
+    "github.com/spianodev/snippetbox/pkg/models"
 // The underscore creates an alias for the package name to a blank identifier so the driver init() function can run
     _ "github.com/go-sql-driver/mysql"
 )
@@ -16,10 +18,10 @@ import (
 type application struct {
     errorLog *log.Logger
     infoLog *log.Logger
+    snippets *mysql.SnippetModel
 }
 
 // function to load/read environment file
-
 func init() {
   if err := godotenv.Load(); err != nil {
     log.Print("No .env file found...")
@@ -60,6 +62,7 @@ func main() {
     app := &application{
         errorLog: errorLog,
         infoLog: infoLog,
+        snippets: &mysql.SnippetModel{DB: db},
     }
 
     srv := &http.Server{
