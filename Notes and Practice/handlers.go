@@ -3,6 +3,7 @@ package main
 import(
     "errors"
     "fmt"
+    "html/template"
     "net/http"
     "strconv"
 
@@ -14,17 +15,23 @@ func (app *application)home(w http.ResponseWriter, r *http.Request) {
         app.notFound(w)
         return
     }
-
-    s, err := app.snippets.Latest()
+    // adding the templates with home first
+    files := []string{
+        "./ui/html/home.page.tmpl",
+        "./ui/html/base.layout.tmpl",
+        "./ui/html/footer.partial.tmpl",
+    }
+    // adding the files defined above
+    ts, err := template.ParseFiles(files...)
     if err != nil {
         app.serverError(w, err)
         return
     }
-
-    for _, snippet := range s {
-        fmt.Fprintf(w, "%v\n", snippet)
+    // Write the template content
+    err = ts.Execute(w, nil)
+    if err != nil {
+        app.serverError(w, err)
     }
-
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
