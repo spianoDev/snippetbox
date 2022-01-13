@@ -3,6 +3,7 @@ package main
 import(
     "errors"
     "fmt"
+    "html/template"
     "net/http"
     "strconv"
 
@@ -33,6 +34,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
         app.notFound(w)
         return
     }
+
     s, err := app.snippets.Get(id)
     if err != nil {
         if errors.Is(err, models.ErrNoRecord) {
@@ -42,7 +44,24 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
         }
         return
     }
-    fmt.Fprintf(w, "%v", s)
+    // re-initialize the html paths from before
+    files := []string{
+        "./ui/html/home.page.tmpl",
+        "./ui/html/base.layout.tmpl",
+        "./ui/html/footer.partial.tmpl",
+        "./ui/html/show.page.tmpl",
+    }
+    // parse the template files
+    ts, err := template.ParseFiles(files...)
+    if err != nil {
+        app.serverError(w, err)
+        return
+    }
+
+    err = ts.Execute(w, s)
+    if err != nil {
+        app.serverError(w, err)
+    }
 }
 
 func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
