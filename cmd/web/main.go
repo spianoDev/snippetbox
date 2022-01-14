@@ -4,6 +4,7 @@ import (
     "database/sql"
     "fmt"
     "flag"
+    "html/template"
     "log"
     "net/http"
     "os"
@@ -19,6 +20,7 @@ type application struct {
     errorLog *log.Logger
     infoLog *log.Logger
     snippets *mysql.SnippetModel
+    templateCache map[string]*template.Template
 }
 
 // function to load/read environment file
@@ -58,11 +60,18 @@ func main() {
     // Close connection pool before the main function exits
     defer db.Close()
 
+    // Initialize a new template templateCache
+    templateCache, err := newTemplateCache("./ui/html/")
+    if err != nil {
+        errorLog.Fatal(err)
+    }
+
     // New instance of application with the dependencies
     app := &application{
         errorLog: errorLog,
         infoLog: infoLog,
         snippets: &mysql.SnippetModel{DB: db},
+        templateCache: templateCache,
     }
 
     srv := &http.Server{
