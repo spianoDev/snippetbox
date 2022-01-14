@@ -49,22 +49,22 @@ func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodPost {
-        w.Header().Set("Allow", http.MethodPost)
-        app.clientError(w, http.StatusMethodNotAllowed)
+    err := r.ParseForm()
+    if err != nil {
+        app.clientError(w, http.StatusBadRequest)
         return
     }
-    // create dummy data to be removed later
-    title := "0 snail"
-    content := "0 snaile\nClimb Mount Fuji,\nBut slowly, slowly!\n\n- Kobayashi Issa"
-    expires := "7"
 
-    // pass this data to the SnippetModel.Insert() method
+    title := r.PostForm.Get("title")
+    content := r.PostForm.Get("content")
+    expires := r.PostForm.Get("expires")
+
+    // pass the form data to the SnippetModel.Insert() method
     id, err := app.snippets.Insert(title, content, expires)
     if err != nil {
         app.serverError(w, err)
         return
     }
     // Redirect to the relevant page for the new snippet
-    http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+    http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
