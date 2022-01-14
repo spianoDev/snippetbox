@@ -6,6 +6,21 @@ import (
     "runtime/debug"
 )
 
+// Cache template helper to render templates from the cache
+func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
+    // retrieve the appropriate template from cache based on name
+    ts, ok := app.templateCache[name]
+    if !ok {
+        app.serverError(w, fmt.Errorf("Snippets cannot find the template you are looking for: %s.", name))
+        return
+    }
+
+    err := ts.Execute(w, td)
+    if err != nil {
+        app.serverError(w, err)
+    }
+}
+
 // Error helper writes message and sends 500 Internal Server Error to user
 func (app *application) serverError(w http.ResponseWriter, err error) {
     trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
