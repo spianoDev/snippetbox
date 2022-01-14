@@ -13,5 +13,5 @@ func (app *application) routes() http.Handler {
     // register the file server but strip /static prefix before the request
     mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-    return secureHeaders(mux)
+    return app.logRequest(secureHeaders(mux))
 }
