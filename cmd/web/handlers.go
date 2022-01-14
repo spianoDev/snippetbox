@@ -5,6 +5,8 @@ import(
     "fmt"
     "net/http"
     "strconv"
+    "strings"
+    "unicode/utf8"
 
     "github.com/spianodev/snippetbox/pkg/models"
 )
@@ -59,6 +61,30 @@ func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
     content := r.PostForm.Get("content")
     expires := r.PostForm.Get("expires")
 
+    errors := make(map[string]string)
+
+    if strings.TrimSpace(title) == "" {
+        errors["title"] = "ERROR, PLEASE ADD A TITLE!"
+    } else if utf8.RuneCountInString(title) > 160 {
+        errors["title"] = "Title is too long (maximum is 160 characters)"
+    }
+
+    if strings.TrimSpace(content) == "" {
+        errors["content"] = "ERROR, PLEASE ADD CONTENT!"
+    }
+
+    if strings.TrimSpace(expires) == "" {
+        errors["expires"] = "ERROR, PLEASE SELECT AN EXPIRATION!"
+    } else if expires != "365" && expires != "7" && expires != "1" {
+        errors["expires"] = "Invalid field"
+    }
+
+    // Dump any errors into plain text HTTP response and return to user
+    if len(errors) > 0 {
+        fmt.Fprint(w, errors)
+        return
+    }
+    
     // pass the form data to the SnippetModel.Insert() method
     id, err := app.snippets.Insert(title, content, expires)
     if err != nil {
