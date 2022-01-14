@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bytes"
     "fmt"
     "net/http"
     "runtime/debug"
@@ -15,10 +16,17 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
         return
     }
 
-    err := ts.Execute(w, td)
+    // Initialize a buffer
+    buffer := new(bytes.Buffer)
+
+    // Write to buffer first so errors return correctly to user
+    err := ts.Execute(buffer, td)
     if err != nil {
         app.serverError(w, err)
+        return
     }
+
+    buffer.WriteTo(w)
 }
 
 // Error helper writes message and sends 500 Internal Server Error to user
