@@ -5,7 +5,17 @@ import (
     "fmt"
     "net/http"
     "runtime/debug"
+    "time"
 )
+
+// addDefaultData helper that adds additional info to all pages
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
+    if td == nil {
+        td = &templateData{}
+    }
+    td.CurrentYear = time.Now().Year()
+    return td
+}
 
 // Cache template helper to render templates from the cache
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
@@ -20,7 +30,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
     buffer := new(bytes.Buffer)
 
     // Write to buffer first so errors return correctly to user
-    err := ts.Execute(buffer, td)
+    err := ts.Execute(buffer, app.addDefaultData(td, r))
     if err != nil {
         app.serverError(w, err)
         return

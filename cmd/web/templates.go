@@ -8,6 +8,7 @@ import (
 )
 // This struct will allow any dynamic data to pass to the HTML templates
 type templateData struct {
+    CurrentYear int
     Snippet *models.Snippet
     Snippets []*models.Snippet
 }
