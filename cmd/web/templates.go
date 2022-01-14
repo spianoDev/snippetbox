@@ -3,6 +3,7 @@ package main
 import (
     "html/template"
     "path/filepath"
+    "time"
 
     "github.com/spianodev/snippetbox/pkg/models"
 )
@@ -11,6 +12,16 @@ type templateData struct {
     CurrentYear int
     Snippet *models.Snippet
     Snippets []*models.Snippet
+}
+
+// Function to make date human friendly
+func humanDate(t time.Time) string {
+    return t.Format("Jan 02, 2006 at 13:05 MST")
+}
+
+// Make a global variable that passes the human friendly date
+var functions = template.FuncMap{
+    "humanDate": humanDate,
 }
 
 // Function to cache pages
@@ -26,7 +37,7 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
         // assign each file name in the loop to the name variable
         name := filepath.Base(page)
 
-        ts, err := template.ParseFiles(page)
+        ts, err := template.New(name).Funcs(functions).ParseFiles(page)
         if err != nil {
             return nil, err
         }
