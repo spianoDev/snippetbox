@@ -81,10 +81,13 @@ func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
 
     // Dump any errors into plain text HTTP response and return to user
     if len(errors) > 0 {
-        fmt.Fprint(w, errors)
+        app.render(w, r, "create.page.tmpl", &templateData{
+            FormErrors: errors,
+            FormData: r.PostForm,
+        })
         return
     }
-    
+
     // pass the form data to the SnippetModel.Insert() method
     id, err := app.snippets.Insert(title, content, expires)
     if err != nil {
