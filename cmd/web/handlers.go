@@ -5,9 +5,8 @@ import(
     "fmt"
     "net/http"
     "strconv"
-    "strings"
-    "unicode/utf8"
 
+    "github.com/spianodev/snippetbox/pkg/forms"
     "github.com/spianodev/snippetbox/pkg/models"
 )
 
@@ -47,7 +46,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-    app.render(w, r, "create.page.tmpl", nil)
+    app.render(w, r, "create.page.tmpl", &templateData{
+        Form: forms.New(nil),
+    })
 }
 
 func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -57,39 +58,18 @@ func (app *application)createSnippet(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    title := r.PostForm.Get("title")
-    content := r.PostForm.Get("content")
-    expires := r.PostForm.Get("expires")
+    form := forms.New(r.PostForm)
+    form.Required("title", "content", "expires")
+    form.MaxLength("title", 160)
+    form.PermittedValues("expires", "365", "7", "1")
 
-    errors := make(map[string]string)
-
-    if strings.TrimSpace(title) == "" {
-        errors["title"] = "ERROR, PLEASE ADD A TITLE!"
-    } else if utf8.RuneCountInString(title) > 160 {
-        errors["title"] = "Title is too long (maximum is 160 characters)"
-    }
-
-    if strings.TrimSpace(content) == "" {
-        errors["content"] = "ERROR, PLEASE ADD CONTENT!"
-    }
-
-    if strings.TrimSpace(expires) == "" {
-        errors["expires"] = "ERROR, PLEASE SELECT AN EXPIRATION!"
-    } else if expires != "365" && expires != "7" && expires != "1" {
-        errors["expires"] = "Invalid field"
-    }
-
-    // Dump any errors into plain text HTTP response and return to user
-    if len(errors) > 0 {
-        app.render(w, r, "create.page.tmpl", &templateData{
-            FormErrors: errors,
-            FormData: r.PostForm,
-        })
+    // Redisplay the template if the form is not valid
+    if !form.Valid() {
+        app.render(w, r, "create.page.tmpl", &templateData{Form: form})
         return
     }
 
-    // pass the form data to the SnippetModel.Insert() method
-    id, err := app.snippets.Insert(title, content, expires)
+    id, err := app.snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
     if err != nil {
         app.serverError(w, err)
         return
